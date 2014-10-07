@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Cambridge</title>
+	<meta charset="utf-8" />
+</head>
+<body>
+
+	<form id="form-text" method="POST">
+		<textarea name="text-user" autofocus placeholder="Texte entré" rows="30" cols="50"></textarea>
+		<textarea name="text-output" placeholder="Texte mélangé" rows="30" cols="50" disabled="true"></textarea><br/>
+		<input type="submit" value="Mélanger" />
+	</form>
+
+	<script type="text/javascript">
+		
+		document.getElementById('form-text').onsubmit = function() {
+			
+			// === 1. Récupérer le texte à mélanger ===
+			scramble_text(document.getElementsByName('text-user')[0].value);
+			return false;
+		}
+
+		function scramble_text(text_user) {
+
+			// === 2. Mélanger les lettres de chaque mot ===
+			var text_user_array = text_user.split(' ');
+			var text_output_array = [];
+			var w, a, b, tmp, rdm;
+
+			for (var i = 0, c = text_user_array.length ; i < c ; i++) {
+				w = text_user_array[i];
+				w = w.scramble();
+				text_output_array[i] = w;
+			}
+
+			// === 3. Afficher le texte mélangé ===
+			document.getElementsByName('text-output')[0].value = text_output_array.join(' ');
+		}
+
+		String.prototype.replaceAt = function(index, character) {
+			return this.substr(0, index) + character + this.substr(index+1);
+		}
+
+		String.prototype.scramble = function() {
+			var w = this;
+			// 2.a. Index du début et de la fin du mot (filtre la ponctuation) :
+			for (var j = 0, d = w.length ; j < d ; j++) {
+				a = w.search(/[a-zA-ZéÉèÈàÀçÇùÙîÎôÔïÏöÖêÊëËâÂäÄ]{1}/);
+				b = (w+' ').search(/[a-zA-ZéÉèÈàÀçÇùÙîÎôÔïÏöÖêÊëËâÂäÄ]{1}(?=[^a-zA-Z'\-éÉèÈàÀçÇùÙîÎôÔïÏöÖêÊëËâÂäÄ])/);
+			}
+			// 2.b. Mélange des lettres du mot entre a+1 et b-1 (laisse les première et dernière lettres) :
+			// (Conditions : "j <= b/2" = mode rapide ; "j < b" = mode très mélangé)
+			for (var j = a+1 ; j <= b/2 ; j++) {
+				tmp = w[j];
+				rdm = Math.floor((Math.random() * (b-1)) + a+1);
+				w = w.replaceAt(j, w[rdm]);
+				w = w.replaceAt(rdm, tmp);
+			}
+
+			return w;
+		}
+
+	</script>
+
+</body>
+</html>
